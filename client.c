@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 //variables para las constantes
 #define num_subscription_process = 3;      //numero procesos de subscripcion (o)
@@ -12,18 +13,18 @@
 #define wait_time_between_subscripction_process =
 
 //variables para los estados del cliente
-#define DISCONNECTED "DISCONNECTED";       //desconectado
-#define NOT_SUBSCRIBED = "NOT_SUBSCRIBED";   //no subscrito
-#define WAIT_ACK_SUBS = "WAIT_ACK_SUBS";     //espera confirmacion paquete de subscripcion
-#define WAIT_ACK_INFO "WAIT_ACK_INFO";     //espera confirmacion paquete adicional de subscripcion
-#define SUBSCRIBED = "SUBSCRIBED";           //ubscrito
-#define SEND_HELLO = "SEND_HELLO";           //
-#define WAIT_INFO = "WAIT_INFO";
+#define DISCONNECTED 0;       //desconectado
+#define NOT_SUBSCRIBED 1;     //no subscrito
+#define WAIT_ACK_SUBS 2;      //espera confirmacion paquete de subscripcion
+#define WAIT_ACK_INFO 3;      //espera confirmacion paquete adicional de subscripcion
+#define SUBSCRIBED 4;         //subscrito
+#define SEND_HELLO 5;         //enviando paquetes de hello
+#define WAIT_INFO 6;          //esperando paquetes de hello
 
 //declaracion de funciones
 void impossibleConnectServer(); //funcion para avisar que ha sido imposible conectar con el servidor
 int randomTime();
-void showStatus(char status[]);
+void showStatus(int status);
 void readFileCfg();
 void waitingTerminalComands();
 void packInfo();
@@ -52,10 +53,10 @@ void DATA_REJ();    //rechazo de un paquete de datos
 //inicio del programa
 int main() {
 
-    char status[] = DISCONNECTED;
+    int status = DISCONNECTED;
     showStatus(status);
-
-    status[] = WAIT_ACK_INFO;
+    //strcpy(status, NOT_SUBSCRIBED);
+    status = NOT_SUBSCRIBED;
     showStatus(status);
 
     //leer datos del archivo
@@ -87,8 +88,31 @@ int randomTime() {
 }
 
 //funcion que muestra el estado del cliente
-void showStatus(char status[]) {
-    printf("El estado del cliente es: %s\n", status);
+void showStatus(int status) {
+    if (status == 0) {
+        printf("El estado del cliente es: Desconectado.\n");
+    }
+    else if (status == 1) {
+        printf("El estado del cliente es: No subscrito.\n");
+    }
+    else if (status == 2) {
+        printf("El estado del cliente es: Espera confirmacion paquete de subscripcion.\n");
+    }
+    else if (status == 3) {
+        printf("El estado del cliente es: Espera confirmacion paquete adicional de subscripcion\n");
+    }
+    else if (status == 4) {
+      printf("El estado del cliente es: Subscrito\n");
+    }
+    else if (status == 5) {
+        printf("El estado del cliente es: Enviando paquetes de hello\n");
+    }
+    else if (status == 6) {
+        printf("El estado del cliente es: esperando paquetes de hello\n");
+    }
+    else {
+        printf("El estado del cliente es: Este estado no existe\n");
+    }
 }
 
 //funcion que hace la peticion de subscripcion
@@ -118,7 +142,18 @@ void SUBS_REJ() {
 
 //metodo que lee la informacion del fichero .cfg
 void readFileCfg() {
-
+  FILE * file = fopen("client0.cfg", "r");
+  if (file == NULL) {
+    printf("se ha producido un error al abrir el archivo");
+  }
+  else {
+    char str[200];
+    while (fgets(str, 200, file) != NULL) {
+      fprintf("%s\n", str);
+    }
+    //printf("el texto es %s \n", str);
+  }
+  fclose(file);
 }
 
 //metodo para empaquetar
